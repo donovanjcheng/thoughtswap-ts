@@ -8,6 +8,10 @@ import { PrismaClient } from '@prisma/client';
 
 dotenv.config();
 
+const {
+    FRONTEND_URL,
+} = process.env;
+
 const app = express();
 const prisma = new PrismaClient();
 app.use(cors());
@@ -109,7 +113,7 @@ async function broadcastParticipantList(joinCode: string, activePromptUseId: str
 const httpServer = createServer(app);
 const io = new Server(httpServer, {
     cors: {
-        origin: "http://localhost:5173", // Vite default port
+        origin: `${FRONTEND_URL}`, // Vite default port
         methods: ["GET", "POST"]
     }
 });
@@ -195,18 +199,6 @@ io.on('connection', (socket) => {
         socket.emit('JOIN_SUCCESS', { joinCode: normalizedCode, courseTitle: course.title });
 
         broadcastParticipantList(normalizedCode, null);
-        // If Teacher, ensure an ACTIVE session exists
-        // if (role === 'TEACHER') {
-        //     let session = await prisma.session.findFirst({
-        //         where: { courseId: course.id, status: 'ACTIVE' }
-        //     });
-        //     if (!session) {
-        //         session = await prisma.session.create({
-        //             data: { courseId: course.id, status: 'ACTIVE' }
-        //         });
-        //         console.log(`Created new session ${session.id} for course ${course.id}`);
-        //     }
-        // }
     });
 
     socket.on('TEACHER_SEND_PROMPT', async ({ joinCode, content }) => {

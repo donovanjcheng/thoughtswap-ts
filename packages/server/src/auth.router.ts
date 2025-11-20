@@ -19,6 +19,7 @@ const REQUIRED_SCOPES = [
 
 // 1. Configuration Constants from .env
 const {
+    FRONTEND_URL,
     CANVAS_CLIENT_ID,
     CANVAS_CLIENT_SECRET,
     CANVAS_BASE_URL,
@@ -64,12 +65,12 @@ router.get('/callback', async (req: Request, res: Response) => {
 
     if (error) {
         console.error('Canvas OAuth Error:', error);
-        return res.redirect('http://localhost:5173/?error=auth_denied');
+        return res.redirect(`${FRONTEND_URL}/?error=auth_denied`);
     }
 
     if (!code) {
         console.error('Missing authorization code.');
-        return res.redirect('http://localhost:5173/?error=no_code');
+        return res.redirect(`${FRONTEND_URL}/?error=no_code`);
     }
 
     try {
@@ -128,7 +129,7 @@ router.get('/callback', async (req: Request, res: Response) => {
         });
 
         // Final Redirect back to the frontend
-        const frontendRedirect = `http://localhost:5173/auth/success?name=${encodeURIComponent(localUser.name)}&role=${localUser.role}&email=${encodeURIComponent(localUser.email)}`;
+        const frontendRedirect = `${FRONTEND_URL}/auth/success?name=${encodeURIComponent(localUser.name)}&role=${localUser.role}&email=${encodeURIComponent(localUser.email)}`;
 
         return res.redirect(frontendRedirect);
 
