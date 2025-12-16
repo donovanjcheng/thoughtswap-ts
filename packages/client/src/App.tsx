@@ -3,7 +3,7 @@ import { socket } from './socket';
 import StudentView from './components/StudentView';
 import TeacherView from './components/TeacherView';
 import Modal from './components/Modal';
-import OnboardingTour from './components/OnboardingTour'; // Import Tour
+import OnboardingTour from './components/OnboardingTour';
 import { LogOut, Users, Zap, Play, GraduationCap } from 'lucide-react';
 
 type UserRole = 'STUDENT' | 'TEACHER' | null;
@@ -36,7 +36,7 @@ function App() {
   const [joinCode, setJoinCode] = useState('');
   const [authErrorModal, setAuthErrorModal] = useState(false);
   const [showConsentModal, setShowConsentModal] = useState(false);
-  const [showTour, setShowTour] = useState(false); // Tour State
+  const [showTour, setShowTour] = useState(false);
 
   // TODO: Change the following to the correct Canvas Auth URL
   const CANVAS_AUTH_URL = 'http://localhost:8000/accounts/canvas/login/';
@@ -80,11 +80,9 @@ function App() {
     };
 
     const handleConsentStatus = (data: { consentGiven: boolean, consentDate: string | null }) => {
-      // If consent hasn't been explicitly given/decided
       if (data.consentDate === null) {
         setShowConsentModal(true);
       } else {
-        // Check for tour if consent is already decided
         checkTour();
       }
     };
@@ -119,7 +117,6 @@ function App() {
   const handleConsentResponse = (gaveConsent: boolean) => {
     socket.emit('UPDATE_CONSENT', { consentGiven: gaveConsent });
     setShowConsentModal(false);
-    // Trigger tour after consent decision
     checkTour();
   };
 
@@ -140,9 +137,27 @@ function App() {
   };
 
   const handleLogout = () => {
-    updateAuth({ isLoggedIn: false, name: null, email: null, role: null });
-    setJoinCode('');
-    socket.disconnect();
+    // If teacher, attempt to end active session
+    if (authState.role === 'TEACHER') {
+      const activeJoinCode = localStorage.getItem('thoughtswap_joinCode');
+      const activeTeacher = localStorage.getItem('thoughtswap_teacher_active');
+
+      if (activeJoinCode && activeTeacher === 'true') {
+        console.log("Ending session before logout:", activeJoinCode);
+        // We use volatile to ensure it attempts to send even if buffer issues, 
+        // though standard emit is usually fine.
+        socket.emit('END_SESSION', { joinCode: activeJoinCode });
+      }
+      localStorage.removeItem('thoughtswap_joinCode');
+      localStorage.removeItem('thoughtswap_teacher_active');
+    }
+
+    // Delay disconnect to ensure END_SESSION packet is sent
+    setTimeout(() => {
+      updateAuth({ isLoggedIn: false, name: null, email: null, role: null });
+      setJoinCode('');
+      socket.disconnect();
+    }, 500); // 500ms delay to allow network flush
   };
 
   const handleStudentJoin = (code: string) => {

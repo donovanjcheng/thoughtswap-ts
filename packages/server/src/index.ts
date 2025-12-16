@@ -331,6 +331,26 @@ io.on('connection', (socket: Socket) => {
         }
     });
 
+    // Handle teacher resetting for a new prompt
+    socket.on('TEACHER_RESET_STATE', async ({ joinCode }) => {
+        const user = await userPromise;
+        if (!user || role !== 'TEACHER') return;
+
+        const course = await prisma.course.findUnique({ where: { joinCode } });
+        if (!course) return;
+
+        // Reset assignments for the next round
+        if (roomAssignments[joinCode]) roomAssignments[joinCode] = {};
+
+        // Notify students to go to loading screen
+        io.to(joinCode).emit('RESET_CLIENT_STATE');
+
+        // Also clear participants list submission status locally/broadcast it
+        broadcastParticipantList(joinCode, null);
+
+        logEvent('RESET_STATE', user.id, { joinCode });
+    });
+
     socket.on('JOIN_ROOM', async ({ joinCode }: { joinCode: string }) => {
         const user = await userPromise;
         if (!user) return;
@@ -448,7 +468,7 @@ io.on('connection', (socket: Socket) => {
                     promptUseId: promptUseId
                 }
             });
-
+            
             broadcastParticipantList(joinCode, promptUseId);
             broadcastThoughtsList(joinCode, promptUseId);
 

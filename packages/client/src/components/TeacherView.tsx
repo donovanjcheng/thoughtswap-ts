@@ -185,7 +185,11 @@ export default function TeacherView({ auth }: TeacherViewProps) {
         socket.emit('DELETE_SAVED_PROMPT', { id });
     };
 
+    // Modified reset handler to notify server
     const handleReset = () => {
+        if (joinCode) {
+            socket.emit('TEACHER_RESET_STATE', { joinCode });
+        }
         setPromptSent(false); setPromptInput(''); setSubmissionCount(0);
         setSwapComplete(false); setLiveThoughts([]); setDistribution({});
         setPromptType('TEXT'); setMcOptions(['', '']);
@@ -195,7 +199,12 @@ export default function TeacherView({ auth }: TeacherViewProps) {
         showModal('confirm', 'End Session', 'End the session? All students will be disconnected.', () => {
             socket.emit('END_SESSION', { joinCode });
             setIsActive(false); setJoinCode(''); setParticipants([]);
-            handleReset();
+
+            // Clean local state properly
+            setPromptSent(false); setPromptInput(''); setSubmissionCount(0);
+            setSwapComplete(false); setLiveThoughts([]); setDistribution({});
+            setPromptType('TEXT'); setMcOptions(['', '']);
+
             localStorage.removeItem('thoughtswap_joinCode');
             localStorage.removeItem('thoughtswap_teacher_active');
 
