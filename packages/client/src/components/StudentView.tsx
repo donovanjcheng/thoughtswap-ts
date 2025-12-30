@@ -1,6 +1,15 @@
+/*
+ * ThoughtSwap
+ * Copyright (C) 2026 ThoughtSwap
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ */
 import React, { useState, useEffect } from 'react';
 import { socket } from '../socket';
-import { Loader2, Users, MessageSquare, CheckCircle, RotateCcw, AlertCircle, HelpCircle, RefreshCw, Bell } from 'lucide-react';
+import { Loader2, Users, MessageSquare, CheckCircle, RotateCcw, HelpCircle, RefreshCw, Bell } from 'lucide-react';
 import Modal from './Modal';
 import type { ModalType } from './Modal';
 import StudentResponseInput from './StudentResponseInput';
