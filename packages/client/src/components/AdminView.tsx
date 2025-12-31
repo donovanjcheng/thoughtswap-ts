@@ -28,6 +28,11 @@ interface Session {
     teacherName: string;
     createdAt: string;
     participantCount: number;
+    course?: {
+        joinCode: string;
+        title: string;
+    };
+    promptCount?: number;
 }
 
 interface Thought {
@@ -35,6 +40,7 @@ interface Thought {
     content: string;
     authorName: string;
     sessionId: string;
+    consent?: boolean;
 }
 
 interface Swap {
@@ -43,6 +49,10 @@ interface Swap {
     toUser: string;
     thoughtContent: string;
     timestamp: string;
+    studentName?: string;
+    classroom?: string;
+    consent?: boolean;
+    createdAt?: string;
 }
 
 interface Log {
@@ -51,6 +61,9 @@ interface Log {
     action: string;
     userId: string;
     details: string;
+    createdAt?: string;
+    event?: string;
+    payload?: Record<string, unknown>;
 }
 
 interface AdminData {
@@ -474,7 +487,9 @@ export default function AdminView({ onExit }: { onExit: () => void }) {
                                                         : '✗ NOT CONSENTED'}
                                                 </span>
                                                 <span className="text-slate-600">
-                                                    {new Date(swap.createdAt).toLocaleString()}
+                                                    {swap.createdAt
+                                                        ? new Date(swap.createdAt).toLocaleString()
+                                                        : '-'}
                                                 </span>
                                             </div>
                                         </div>
@@ -517,7 +532,11 @@ export default function AdminView({ onExit }: { onExit: () => void }) {
                                                 className="hover:bg-slate-900/50 transition-colors"
                                             >
                                                 <td className="px-4 py-2 text-slate-500">
-                                                    {new Date(log.createdAt).toLocaleTimeString()}
+                                                    {log.createdAt
+                                                        ? new Date(
+                                                              log.createdAt
+                                                          ).toLocaleTimeString()
+                                                        : '-'}
                                                 </td>
                                                 <td className="px-4 py-2 text-indigo-400 font-bold">
                                                     {log.event}
