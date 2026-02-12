@@ -16,6 +16,11 @@ export default defineConfig({
                 changeOrigin: true,
                 secure: false,
             },
+            '/accounts': {
+                target: SERVER_URL,
+                changeOrigin: true,
+                secure: false,
+            },
             '/socket.io': {
                 target: SERVER_URL,
                 ws: true,
