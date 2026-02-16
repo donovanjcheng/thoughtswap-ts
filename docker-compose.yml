@@ -17,8 +17,8 @@ services:
             context: .
             dockerfile: packages/server/Dockerfile
             args:
-              DATABASE_URL: ${DATABASE_URL:-postgresql://user:password@postgres:5432/thoughtswap}
-              PORT: ${SERVER_PORT:-3001}
+                DATABASE_URL: ${DATABASE_URL:-postgresql://user:password@postgres:5432/thoughtswap}
+                PORT: ${SERVER_PORT:-3001}
         restart: always
         command: sh -c "npx prisma migrate deploy && npm start"
         ports:
